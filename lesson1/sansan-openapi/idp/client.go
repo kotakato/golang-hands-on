@@ -83,12 +83,14 @@ func (c *Client) GetDepartments() (string, error) {
 }
 
 // Check はCSVファイルが正しいことを検証する。
-func (c *Client) Check(usersFile io.Reader) (string, error) {
+func (c *Client) Check(files map[string]io.Reader) (string, error) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
-	err := addFile(w, "user", usersFile)
-	if err != nil {
-		return "", fmt.Errorf("Failed to prepare to check: %s", err)
+	for fieldname, file := range files {
+		err := addFile(w, fieldname, file)
+		if err != nil {
+			return "", fmt.Errorf("Failed to prepare to check: %s", err)
+		}
 	}
 	w.Close()
 

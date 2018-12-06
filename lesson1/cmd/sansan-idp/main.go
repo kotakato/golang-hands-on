@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/kotakato/golang-hands-on/lesson1/sansan-openapi/idp"
@@ -18,14 +19,16 @@ Options:
 
 func main() {
 	var (
-		endpoint  string
-		apiKey    string
-		usersPath string
+		endpoint        string
+		apiKey          string
+		usersPath       string
+		departmentsPath string
 	)
 
 	flag.StringVar(&endpoint, "endpoint", idp.DefaultEndpoint, "Endpoint of Sansan OpenAPI")
 	flag.StringVar(&apiKey, "api-key", "", "API key of Sansan OpenAPI")
 	flag.StringVar(&usersPath, "users", "", "Path to users CSV file to import")
+	flag.StringVar(&departmentsPath, "departments", "", "Path to departments CSV file to import")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, usageTemplate, os.Args[0])
 		flag.PrintDefaults()
@@ -45,7 +48,7 @@ func main() {
 	case "departments":
 		executeDepartments(client)
 	case "check":
-		executeCheck(client, usersPath)
+		executeCheck(client, usersPath, departmentsPath)
 	default:
 		showUsageAndExit()
 	}
@@ -74,20 +77,33 @@ func executeDepartments(client *idp.Client) {
 	fmt.Println(result)
 }
 
-func executeCheck(client *idp.Client, usersPath string) {
-	if usersPath == "" {
-		fmt.Fprintf(os.Stderr, "-users is required.\n")
+func executeCheck(client *idp.Client, usersPath, departmentsPath string) {
+	if usersPath == "" && departmentsPath == "" {
+		fmt.Fprintf(os.Stderr, "Either -users or -departments is required.\n")
 		showUsageAndExit()
 	}
 
-	usersFile, err := os.Open(usersPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to open file '%s': %s\n", usersPath, err)
-		os.Exit(1)
+	files := make(map[string]io.Reader)
+	if usersPath != "" {
+		usersFile, err := os.Open(usersPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to open file '%s': %s\n", usersPath, err)
+			os.Exit(1)
+		}
+		defer usersFile.Close()
+		files["user"] = usersFile
 	}
-	defer usersFile.Close()
+	if departmentsPath != "" {
+		departmentsFile, err := os.Open(departmentsPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to open file '%s': %s\n", departmentsPath, err)
+			os.Exit(1)
+		}
+		defer departmentsFile.Close()
+		files["department"] = departmentsFile
+	}
 
-	result, err := client.Check(usersFile)
+	result, err := client.Check(files)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		os.Exit(1)
