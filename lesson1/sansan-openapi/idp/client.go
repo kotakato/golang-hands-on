@@ -57,3 +57,30 @@ func (c *Client) GetUsers() (string, error) {
 
 	return string(body), nil
 }
+
+// GetDepartments は部署一覧のCSV文字列を取得する。
+func (c *Client) GetDepartments() (string, error) {
+	url := c.Endpoint + "/organization/departments"
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", fmt.Errorf("Failed to prepare to get departments: %s", err)
+	}
+	req.Header.Set("X-Sansan-Api-Key", c.APIKey)
+
+	log.Printf("Requesting [%s] %s\n", req.Method, req.URL)
+	client := new(http.Client)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("Failed to get departments: %s", err)
+	}
+	defer resp.Body.Close()
+
+	log.Printf("Status: %d\n", resp.StatusCode)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("Failed to get departments: %s", err)
+	}
+
+	return string(body), nil
+}

@@ -40,6 +40,8 @@ func main() {
 	switch flag.Arg(0) {
 	case "users":
 		executeUsers(client)
+	case "departments":
+		executeDepartments(client)
 	default:
 		showUsageAndExit()
 	}
@@ -52,6 +54,15 @@ func showUsageAndExit() {
 
 func executeUsers(client *idp.Client) {
 	result, err := client.GetUsers()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		os.Exit(1)
+	}
+	fmt.Println(result)
+}
+
+func executeDepartments(client *idp.Client) {
+	result, err := client.GetDepartments()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		os.Exit(1)
