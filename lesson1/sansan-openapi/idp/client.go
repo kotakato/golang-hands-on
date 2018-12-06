@@ -33,13 +33,10 @@ func NewClient(endpoint, apiKey string) *Client {
 
 // GetUsers はユーザー一覧のCSV文字列を取得する。
 func (c *Client) GetUsers() (string, error) {
-	url := c.Endpoint + "/organization/users"
-
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := c.newRequest("GET", "organization/users")
 	if err != nil {
 		return "", fmt.Errorf("Failed to prepare to get users: %s", err)
 	}
-	req.Header.Set("X-Sansan-Api-Key", c.APIKey)
 
 	log.Printf("Requesting [%s] %s\n", req.Method, req.URL)
 	client := new(http.Client)
@@ -60,13 +57,10 @@ func (c *Client) GetUsers() (string, error) {
 
 // GetDepartments は部署一覧のCSV文字列を取得する。
 func (c *Client) GetDepartments() (string, error) {
-	url := c.Endpoint + "/organization/departments"
-
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := c.newRequest("GET", "organization/departments")
 	if err != nil {
 		return "", fmt.Errorf("Failed to prepare to get departments: %s", err)
 	}
-	req.Header.Set("X-Sansan-Api-Key", c.APIKey)
 
 	log.Printf("Requesting [%s] %s\n", req.Method, req.URL)
 	client := new(http.Client)
@@ -83,4 +77,15 @@ func (c *Client) GetDepartments() (string, error) {
 	}
 
 	return string(body), nil
+}
+
+func (c *Client) newRequest(method, path string) (*http.Request, error) {
+	url := c.Endpoint + "/" + path
+
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("X-Sansan-Api-Key", c.APIKey)
+	return req, nil
 }
