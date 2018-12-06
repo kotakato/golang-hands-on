@@ -32,8 +32,7 @@ func main() {
 
 	if apiKey == "" {
 		fmt.Fprintf(os.Stderr, "-api-key is required\n")
-		flag.Usage()
-		os.Exit(1)
+		showUsageAndExit()
 	}
 
 	client := idp.NewClient(endpoint, apiKey)
@@ -42,9 +41,13 @@ func main() {
 	case "users":
 		executeUsers(client)
 	default:
-		flag.Usage()
-		os.Exit(1)
+		showUsageAndExit()
 	}
+}
+
+func showUsageAndExit() {
+	flag.Usage()
+	os.Exit(1)
 }
 
 func executeUsers(client *idp.Client) {
