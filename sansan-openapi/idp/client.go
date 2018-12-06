@@ -32,8 +32,8 @@ func NewClient(endpoint, apiKey string) *Client {
 }
 
 // GetUsers はユーザー一覧のCSV文字列を取得する。
-func (c *Client) GetUsers() (string, error) {
-	url := c.Endpoint + "/organization/users"
+func (c *Client) GetUsers(delimiter string) (string, error) {
+	url := c.Endpoint + "/organization/users?delimiter=" + delimiter
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
