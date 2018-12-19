@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/kotakato/golang-hands-on/lesson2/todo"
 )
@@ -30,9 +31,18 @@ func main() {
 	}
 
 	switch flag.Arg(0) {
+	case "add":
+		name := strings.Join(flag.Args()[1:], " ")
+		addItem(todoList, name)
+		showList(todoList)
 	default:
 		showList(todoList)
 	}
+}
+
+func addItem(todoList *todo.List, name string) {
+	item := todo.NewItem(name)
+	todoList.Items = append(todoList.Items, item)
 }
 
 func showList(todoList *todo.List) {
