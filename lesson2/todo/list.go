@@ -2,13 +2,13 @@ package todo
 
 // List はTodoリストを表す。
 type List struct {
-	Items []*Item
+	Items []*Item `json:"items"`
 }
 
 // Item はTodoリストの項目を表す。
 type Item struct {
-	Name string
-	Done bool
+	Name string `json:"name"`
+	Done bool   `json:"done"`
 }
 
 // NewItem は指定した名前のItemを作成してポインターを取得する。
