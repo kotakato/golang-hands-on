@@ -27,14 +27,7 @@ func main() {
 	home, _ := homedir.Dir()
 	path := filepath.Join(home, "todolist.json")
 	store := todo.NewJSONFileStore(path)
-
-	todoList := &todo.List{
-		Items: []*todo.Item{
-			todo.NewItem("牛乳を買う"),
-			todo.NewItem("手紙を出す"),
-			todo.NewItem("プルリクをレビューする"),
-		},
-	}
+	todoList := loadList(store)
 
 	switch flag.Arg(0) {
 	case "add":
@@ -50,6 +43,15 @@ func main() {
 func addItem(todoList *todo.List, name string) {
 	item := todo.NewItem(name)
 	todoList.Items = append(todoList.Items, item)
+}
+
+func loadList(store todo.Store) *todo.List {
+	todoList, err := store.Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to load todo list: %s\n", err)
+		os.Exit(1)
+	}
+	return todoList
 }
 
 func saveList(store todo.Store, todoList *todo.List) {

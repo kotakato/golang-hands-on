@@ -2,8 +2,8 @@ package todo
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
+	"os"
 )
 
 // Store はTodoリストの保管場所を表すインターフェイス。
@@ -33,5 +33,20 @@ func (s *JSONFileStore) Save(todoList *List) error {
 
 // Load はTodoリストをJSONファイルから読み込む。
 func (s *JSONFileStore) Load() (*List, error) {
-	return nil, errors.New("Not implemented")
+	_, err := os.Stat(s.FilePath)
+	if os.IsNotExist(err) {
+		return &List{}, nil // ファイルが存在しない場合は空のTodoリストを返す。
+	}
+	b, err := ioutil.ReadFile(s.FilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var list List
+	err = json.Unmarshal(b, &list)
+	if err != nil {
+		return nil, err
+	}
+
+	return &list, nil
 }
