@@ -4,10 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/kotakato/golang-hands-on/lesson2/todo"
+	homedir "github.com/mitchellh/go-homedir"
 )
 
 const usageTemplate = `Usage: todo
@@ -22,6 +24,10 @@ func main() {
 	}
 	flag.Parse()
 
+	home, _ := homedir.Dir()
+	path := filepath.Join(home, "todolist.json")
+	store := todo.NewJSONFileStore(path)
+
 	todoList := &todo.List{
 		Items: []*todo.Item{
 			todo.NewItem("牛乳を買う"),
@@ -34,6 +40,7 @@ func main() {
 	case "add":
 		name := strings.Join(flag.Args()[1:], " ")
 		addItem(todoList, name)
+		saveList(store, todoList)
 		showList(todoList)
 	default:
 		showList(todoList)
@@ -43,6 +50,14 @@ func main() {
 func addItem(todoList *todo.List, name string) {
 	item := todo.NewItem(name)
 	todoList.Items = append(todoList.Items, item)
+}
+
+func saveList(store todo.Store, todoList *todo.List) {
+	err := store.Save(todoList)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to save todo list: %s\n", err)
+		os.Exit(1)
+	}
 }
 
 func showList(todoList *todo.List) {

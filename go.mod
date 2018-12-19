@@ -10,6 +10,7 @@ require (
 	github.com/labstack/gommon v0.2.8
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/lib/pq v1.0.0
+	github.com/mitchellh/go-homedir v1.0.0
 	github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7 // indirect
 	github.com/oxequa/realize v2.0.2+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
