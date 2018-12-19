@@ -35,6 +35,11 @@ func main() {
 		addItem(todoList, name)
 		saveList(store, todoList)
 		showList(todoList)
+	case "done":
+		id := flag.Arg(1)
+		getDoneItem(todoList, id)
+		saveList(store, todoList)
+		showList(todoList)
 	default:
 		showList(todoList)
 	}
@@ -43,6 +48,21 @@ func main() {
 func addItem(todoList *todo.List, name string) {
 	item := todo.NewItem(name)
 	todoList.Items = append(todoList.Items, item)
+}
+
+func getDoneItem(todoList *todo.List, id string) {
+	index, err := strconv.Atoi(id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ID must be a valid number\n")
+		os.Exit(1)
+	}
+	index--
+	if index < 0 || index >= len(todoList.Items) {
+		fmt.Fprintf(os.Stderr, "ID is out of range\n")
+		os.Exit(1)
+	}
+	item := todoList.Items[index]
+	item.Done = true
 }
 
 func loadList(store todo.Store) *todo.List {
