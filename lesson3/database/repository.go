@@ -33,6 +33,27 @@ func (r *FilmSQLRepository) GetFilms() ([]*domain.Film, error) {
 	return films, nil
 }
 
+// GetFilm は単一のFilmを取得する。
+func (r *FilmSQLRepository) GetFilm(id int) (*domain.Film, error) {
+	rows, err := r.db.Query(`
+		SELECT film_id, title, description, release_year, language_id
+		FROM film
+		WHERE film_id = $1`, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	films, err := scanRows(rows)
+	if err != nil {
+		return nil, err
+	}
+	if len(films) < 1 {
+		return nil, domain.ErrNotFound
+	}
+	return films[0], nil
+}
+
 func scanRows(rows *sql.Rows) ([]*domain.Film, error) {
 	films := make([]*domain.Film, 0)
 	for rows.Next() {
