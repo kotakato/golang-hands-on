@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kotakato/golang-hands-on/sansan-openapi/idp"
+	"github.com/kotakato/golang-hands-on/lesson1/sansan-openapi/idp"
 )
 
 const usageTemplate = `Usage:
