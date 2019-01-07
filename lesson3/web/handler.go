@@ -21,6 +21,7 @@ func SetupFilmEchoHandlers(e *echo.Echo, repo domain.FilmRepository) {
 	e.GET("/films/:id", h.GetFilm)
 	e.POST("/films", h.CreateFilm)
 	e.DELETE("/films/:id", h.DeleteFilm)
+	e.PUT("/films/:id", h.UpdateFilm)
 }
 
 // GetFilms は映画一覧を取得するハンドラー。
@@ -78,3 +79,25 @@ func (h *FilmEchoHandlers) DeleteFilm(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+func (h *FilmEchoHandlers) UpdateFilm(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return domain.ErrNotFound
+	}
+	if c.Request().Header.Get("Content-Type") != "application/json" {
+		return echo.NewHTTPError(http.StatusUnsupportedMediaType, "Content-Type must be application/json")
+	}
+
+	var film domain.Film
+	if err := c.Bind(&film); err != nil {
+		return err
+	}
+	if err := c.Validate(film); err != nil {
+		return err
+	}
+	f, err := h.repo.UpdateFilm(id, &film)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, f)
+}

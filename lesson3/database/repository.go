@@ -117,6 +117,33 @@ func (r *FilmSQLRepository) DeleteFilm(id int) error {
 	return err
 }
 
+// UpdateFilm は引数で指定したIDのFilmを更新する。
+func (r *FilmSQLRepository) UpdateFilm(id int, film *domain.Film) (*domain.Film, error) {
+	err := transact(r.db, func(tx *sql.Tx) error {
+		var updatedID int
+		err := tx.QueryRow(`
+			UPDATE film SET
+				title = $2,
+				description = $3,
+				release_year = $4,
+				language_id = $5
+			WHERE film_id = $1
+			RETURNING film_id`,
+			id, film.Title, film.Description, film.ReleaseYear, film.LanguageID,
+		).Scan(&updatedID)
+		return err
+	})
+	switch err {
+	case sql.ErrNoRows:
+		return nil, domain.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return r.GetFilm(id)
+}
+
 func transact(db *sql.DB, txFunc func(*sql.Tx) error) (err error) {
 	tx, err := db.Begin()
 	if err != nil {
