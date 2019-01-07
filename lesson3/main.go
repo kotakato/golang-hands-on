@@ -17,6 +17,7 @@ import (
 func main() {
 	e := echo.New()
 	e.Logger.SetLevel(log.INFO)
+	e.Validator = web.NewEchoCustomValidator()
 	e.HTTPErrorHandler = web.EchoCustomHTTPErrorHandler
 	e.Use(middleware.Logger())
 
