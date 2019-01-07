@@ -72,3 +72,41 @@ func scanRows(rows *sql.Rows) ([]*domain.Film, error) {
 	}
 	return films, nil
 }
+
+// InsertFilm はFilmを新規作成する。
+func (r *FilmSQLRepository) InsertFilm(film *domain.Film) (*domain.Film, error) {
+	var id int
+	err := transact(r.db, func(tx *sql.Tx) error {
+		err := tx.QueryRow(`
+			INSERT INTO film (title, description, release_year, language_id)
+			VALUES ($1, $2, $3, $4)
+			RETURNING film_id`,
+			film.Title, film.Description, film.ReleaseYear, film.LanguageID,
+		).Scan(&id)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return r.GetFilm(id)
+}
+
+func transact(db *sql.DB, txFunc func(*sql.Tx) error) (err error) {
+	tx, err := db.Begin()
+	if err != nil {
+		return
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			_ = tx.Rollback()
+			panic(p) // re-throw panic after Rollback
+		} else if err != nil {
+			_ = tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+	err = txFunc(tx)
+	return err
+}

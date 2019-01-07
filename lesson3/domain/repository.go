@@ -4,4 +4,5 @@ package domain
 type FilmRepository interface {
 	GetFilms() ([]*Film, error)
 	GetFilm(id int) (*Film, error)
+	InsertFilm(film *Film) (*Film, error)
 }
