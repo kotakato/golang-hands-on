@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 
+	"github.com/lib/pq"
+
 	"github.com/kotakato/golang-hands-on/lesson3/domain"
 )
 
@@ -90,6 +92,29 @@ func (r *FilmSQLRepository) InsertFilm(film *domain.Film) (*domain.Film, error) 
 	}
 
 	return r.GetFilm(id)
+}
+
+// DeleteFilm は引数で指定したIDのFilmを削除する。
+func (r *FilmSQLRepository) DeleteFilm(id int) error {
+	err := transact(r.db, func(tx *sql.Tx) error {
+		var deletedID int
+		err := tx.QueryRow(`
+			DELETE FROM film
+			WHERE film_id = $1
+			RETURNING film_id`, id,
+		).Scan(&deletedID)
+		return err
+	})
+	if err, ok := err.(*pq.Error); ok {
+		if err.Code.Class() == "23" {
+			return domain.ErrConflict
+		}
+	}
+	switch err {
+	case sql.ErrNoRows:
+		return domain.ErrNotFound
+	}
+	return err
 }
 
 func transact(db *sql.DB, txFunc func(*sql.Tx) error) (err error) {

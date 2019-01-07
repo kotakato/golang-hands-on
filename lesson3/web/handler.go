@@ -20,6 +20,7 @@ func SetupFilmEchoHandlers(e *echo.Echo, repo domain.FilmRepository) {
 	e.GET("/films", h.GetFilms)
 	e.GET("/films/:id", h.GetFilm)
 	e.POST("/films", h.CreateFilm)
+	e.DELETE("/films/:id", h.DeleteFilm)
 }
 
 // GetFilms は映画一覧を取得するハンドラー。
@@ -63,3 +64,17 @@ func (h *FilmEchoHandlers) CreateFilm(c echo.Context) error {
 	c.Response().Header().Set("Location", c.Echo().URI(h.GetFilm, f.FilmID))
 	return c.JSON(http.StatusCreated, f)
 }
+
+// DeleteFilm は映画を削除するハンドラー。
+func (h *FilmEchoHandlers) DeleteFilm(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return domain.ErrNotFound
+	}
+	err = h.repo.DeleteFilm(id)
+	if err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
