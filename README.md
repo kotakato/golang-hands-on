@@ -5,6 +5,7 @@ Go 言語のハンズオン
 ## 必要環境
 
 - Go 1.11 以降
+- (lesson3 のみ) Docker と Docker Compose
 
 ## 演習
 
