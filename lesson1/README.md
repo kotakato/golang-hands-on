@@ -16,3 +16,9 @@ Options:
   -endpoint string
         Endpoint of Sansan OpenAPI (default "https://api.sansan.com/v2.1")
 ```
+
+## 実行方法
+
+```
+$ go run cmd/sansan-idp/main.go
+```
